@@ -9,6 +9,8 @@ public class FPSController : MonoBehaviour
     public float speed;
     [Header("旋轉"), Range(0, 2000)]
     public float turn;
+    [Header("準心上下移動靈敏度"), Range(0, 10)]
+    public float cameraSpeed;
     [Header("跳越高度"), Range(0, 2000)]
     public float jump = 100;
     [Header("地板偵測位移")]
@@ -18,6 +20,8 @@ public class FPSController : MonoBehaviour
     [Header("血量與血條")]
     public Text textHp;
     public Image imgHp;
+    [Header("上下範圍限制")]
+    public Vector2 cameraLimit = new Vector2(2, 3.5f);
 
     /// <summary>
     /// 血量
@@ -26,6 +30,9 @@ public class FPSController : MonoBehaviour
     private float hpMax = 100;
     private Animator ani;
     private Rigidbody rig;
+    private Transform traMain;
+    private Transform traCam;
+    private Transform target;
     #endregion
 
     #region 開槍欄位
@@ -71,9 +78,6 @@ public class FPSController : MonoBehaviour
         Gizmos.DrawSphere(transform.position + floorOffset, floorRadius);
     }
 
-    private Transform traMain;
-    private Transform traCam;
-
     private void Awake()
     {
         Cursor.visible = false;             // 隱藏滑鼠
@@ -82,8 +86,9 @@ public class FPSController : MonoBehaviour
         aud = GetComponent<AudioSource>();
 
         // transform.Find("子物件名稱") - 搜尋子物件
-        traMain = transform.Find("Main Camera");
-        traCam = transform.Find("Camera");
+        traMain = transform.Find("攝影機物件").Find("Main Camera");
+        traCam = transform.Find("攝影機物件").Find("Camera");
+        target = transform.Find("目標");
     }
 
     private void Update()
@@ -192,6 +197,12 @@ public class FPSController : MonoBehaviour
 
         float x = Input.GetAxis("Mouse X");                     // 滑鼠左右的值
         transform.Rotate(0, x * Time.deltaTime * turn, 0);      // 旋轉
+
+        float y = Input.GetAxis("Mouse Y");                     // 滑鼠上下的值
+        Vector3 posTarget = target.localPosition;               // 取得目標區域座標
+        posTarget.y += y * Time.deltaTime * cameraSpeed;        // Y 軸累加
+        posTarget.y = Mathf.Clamp(posTarget.y, cameraLimit.x, cameraLimit.y);
+        target.localPosition = posTarget;                       // 指定目標的區域座標
     }
 
     /// <summary>

@@ -166,7 +166,13 @@ public class Enemy : MonoBehaviour
         if (collision.gameObject.tag == "子彈")
         {
             float damage = collision.gameObject.GetComponent<Bullet>().attack;
-            Damage(damage);
+
+            if (collision.contacts[0].thisCollider.GetType().Equals(typeof(SphereCollider)))
+            {
+                print("暴頭");
+                Damage(100);
+            }
+            else Damage(damage);
         }
     }
 }
