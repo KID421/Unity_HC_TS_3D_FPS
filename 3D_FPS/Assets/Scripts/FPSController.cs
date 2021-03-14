@@ -15,7 +15,15 @@ public class FPSController : MonoBehaviour
     public Vector3 floorOffset;
     [Header("地板偵測半徑"), Range(0, 20)]
     public float floorRadius = 1;
+    [Header("血量與血條")]
+    public Text textHp;
+    public Image imgHp;
 
+    /// <summary>
+    /// 血量
+    /// </summary>
+    private float hp = 100;
+    private float hpMax = 100;
     private Animator ani;
     private Rigidbody rig;
     #endregion
@@ -63,12 +71,19 @@ public class FPSController : MonoBehaviour
         Gizmos.DrawSphere(transform.position + floorOffset, floorRadius);
     }
 
+    private Transform traMain;
+    private Transform traCam;
+
     private void Awake()
     {
         Cursor.visible = false;             // 隱藏滑鼠
         ani = GetComponent<Animator>();
         rig = GetComponent<Rigidbody>();
         aud = GetComponent<AudioSource>();
+
+        // transform.Find("子物件名稱") - 搜尋子物件
+        traMain = transform.Find("Main Camera");
+        traCam = transform.Find("Camera");
     }
 
     private void Update()
@@ -177,5 +192,67 @@ public class FPSController : MonoBehaviour
 
         float x = Input.GetAxis("Mouse X");                     // 滑鼠左右的值
         transform.Rotate(0, x * Time.deltaTime * turn, 0);      // 旋轉
+    }
+
+    /// <summary>
+    /// 受傷處理
+    /// </summary>
+    /// <param name="getDamage">接收到的傷害</param>
+    private void Damage(float getDamage)
+    {
+        if (hp <= 0) return;            // 如果 死亡 就 跳出
+
+        hp -= getDamage;
+
+        if (hp <= 0) Dead();
+
+        textHp.text = hp.ToString();
+        imgHp.fillAmount = hp / hpMax;
+    }
+    
+    /// <summary>
+    /// 死亡
+    /// </summary>
+    private void Dead()
+    {
+        hp = 0;
+        ani.SetTrigger("死亡觸發");
+        enabled = false;
+
+        StartCoroutine(MoveCamera());
+    }
+
+    private IEnumerator MoveCamera()
+    {
+        traMain.LookAt(transform);              // 攝影機面向
+        traCam.LookAt(transform);
+
+        Vector3 posCam = traMain.position;      // 取得 攝影機 座標
+
+        float yCam = posCam.y;                  // 取得 攝影機的 Y
+        float yUp = yCam + 3;                   // 攝影機位移
+
+        // 慢慢往上移 每次移動 0.1
+
+        // 當 攝影機 的 Y 小於 位移 Y
+        while (yCam < yUp)
+        {
+            yCam += 0.05f;                              // 遞增
+            posCam.y = yCam;                            // 更新 三維向量
+
+            traMain.position = posCam;                  // 更新 主攝影機 座標
+            traCam.position = posCam;       
+
+            yield return new WaitForSeconds(0.02f);     // 等待
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.tag == "子彈")
+        {
+            float damage = collision.gameObject.GetComponent<Bullet>().attack;
+            Damage(damage);
+        }
     }
 }

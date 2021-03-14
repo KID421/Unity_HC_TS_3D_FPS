@@ -83,6 +83,9 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    [Header("攻擊力"), Range(0f, 100f)]
+    public float attack = 5f;
+
     /// <summary>
     /// 開槍
     /// </summary>
@@ -95,6 +98,7 @@ public class Enemy : MonoBehaviour
             timer = 0;                                                              // 歸零
             GameObject temp = Instantiate(bullet, point.position, point.rotation);  // 暫存 = 生成子彈
             temp.GetComponent<Rigidbody>().AddForce(point.right * -speedBullet);    // 取得子彈 剛體 添加推力(前方 * 速度)
+            temp.GetComponent<Bullet>().attack = attack;
             ManageBulletCount();
         }
         else
