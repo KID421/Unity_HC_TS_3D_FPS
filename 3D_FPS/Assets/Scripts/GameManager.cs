@@ -32,6 +32,11 @@ public class GameManager : MonoBehaviour
     [Header("結束畫面 群組元件")]
     public CanvasGroup group;
 
+    /// <summary>
+    /// 紀錄殺死幾隻敵人
+    /// </summary>
+    private int enemyCount;
+
     // 需要傳送地址的參數可以添加 ref - 呼叫時也要加上 ref
 
     /// <summary>
@@ -56,6 +61,13 @@ public class GameManager : MonoBehaviour
         textDead.text = content + "　" + kill + "　｜　" + dead;
 
         if (content == "玩家") StartCoroutine(ShowFinal());
+        // 判斷 死亡的是電腦 並且有 三隻 才結束
+        else if (content.Contains("電腦"))
+        {
+            enemyCount++;
+
+            if (enemyCount == 3) StartCoroutine(ShowFinal());
+        }
     }
 
     /// <summary>

@@ -63,13 +63,17 @@ public class FPSController : MonoBehaviour
     [Header("攻擊力"), Range(0f, 100f)]
     public float attack = 5f;
 
+    private GameManager gm;
     private AudioSource aud;
     private float timer;
-
     /// <summary>
     /// 是否在補充子彈
     /// </summary>
     private bool isAddBullet;
+    /// <summary>
+    /// 紀錄被誰打到
+    /// </summary>
+    private string nameEnemy;
     #endregion
 
     private void OnDrawGizmos()
@@ -77,8 +81,6 @@ public class FPSController : MonoBehaviour
         Gizmos.color = new Color(1, 0, 0, 0.5f);
         Gizmos.DrawSphere(transform.position + floorOffset, floorRadius);
     }
-
-    private GameManager gm;
 
     private void Awake()
     {
@@ -269,18 +271,12 @@ public class FPSController : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 紀錄被誰打到
-    /// </summary>
-    private string nameEnemy;
-
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.tag == "子彈")
         {
             float damage = collision.gameObject.GetComponent<Bullet>().attack;
             nameEnemy = collision.gameObject.name;
-            print(nameEnemy);
             Damage(damage);
         }
     }

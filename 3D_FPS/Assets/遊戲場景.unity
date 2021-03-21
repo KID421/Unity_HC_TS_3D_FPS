@@ -4795,11 +4795,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1837841249260671127, guid: ef2343810f5d8dc499739c50eac77fdf,
-        type: 3}
-      propertyPath: attack
-      value: 70
-      objectReference: {fileID: 0}
     - target: {fileID: 1837841249260770892, guid: ef2343810f5d8dc499739c50eac77fdf,
         type: 3}
       propertyPath: m_Name
@@ -10160,7 +10155,7 @@ MonoBehaviour:
   soundFire: {fileID: 8300000, guid: c61b68e801c1dd043bf5b22d26e0c696, type: 3}
   soundAddBullet: {fileID: 8300000, guid: ceea590a29301bf48b6e866e642acd48, type: 3}
   fireInterval: 0.08
-  attack: 5
+  attack: 100
 --- !u!4 &1648848940 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: e2829e56de83c2d4d91be73fdb13ec5c,
