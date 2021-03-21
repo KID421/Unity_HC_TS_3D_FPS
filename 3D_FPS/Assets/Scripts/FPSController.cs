@@ -78,12 +78,16 @@ public class FPSController : MonoBehaviour
         Gizmos.DrawSphere(transform.position + floorOffset, floorRadius);
     }
 
+    private GameManager gm;
+
     private void Awake()
     {
         Cursor.visible = false;             // 隱藏滑鼠
         ani = GetComponent<Animator>();
         rig = GetComponent<Rigidbody>();
         aud = GetComponent<AudioSource>();
+
+        gm = FindObjectOfType<GameManager>();
 
         // transform.Find("子物件名稱") - 搜尋子物件
         traMain = transform.Find("攝影機物件").Find("Main Camera");
@@ -231,6 +235,13 @@ public class FPSController : MonoBehaviour
         enabled = false;
 
         StartCoroutine(MoveCamera());
+
+        // 更新死亡數量
+        gm.UpdateDataDead(gm.killPlayer, gm.textDataPlayer, "玩家", ref gm.deadPlayer);
+
+        if (nameEnemy.Contains("敵方 1")) gm.UpdateDataKill(ref gm.killNpc1, gm.textDataNpc1, "電腦１", gm.deadNpc1);
+        else if (nameEnemy.Contains("敵方 2")) gm.UpdateDataKill(ref gm.killNpc2, gm.textDataNpc2, "電腦２", gm.deadNpc2);
+        else if (nameEnemy.Contains("敵方 3")) gm.UpdateDataKill(ref gm.killNpc3, gm.textDataNpc3, "電腦３", gm.deadNpc3);
     }
 
     private IEnumerator MoveCamera()
@@ -258,11 +269,18 @@ public class FPSController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 紀錄被誰打到
+    /// </summary>
+    private string nameEnemy;
+
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.tag == "子彈")
         {
             float damage = collision.gameObject.GetComponent<Bullet>().attack;
+            nameEnemy = collision.gameObject.name;
+            print(nameEnemy);
             Damage(damage);
         }
     }

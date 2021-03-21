@@ -37,6 +37,9 @@ public class Enemy : MonoBehaviour
     public int bulletClip = 30;
     [Header("換彈匣的時間"), Range(0f, 5f)]
     public float addBulletTime = 2.5f;
+    [Header("音效")]
+    public AudioClip soundFire;
+    public AudioClip soundAddBullet;
 
     private float timer;
     private bool isAddBullet;
@@ -45,13 +48,19 @@ public class Enemy : MonoBehaviour
     /// </summary>
     private float hp = 100;
 
+    private GameManager gm;
+    private AudioSource aud;
+
     private void Awake()
     {
         player = GameObject.Find("玩家").transform;       // 取得玩家變形資訊
+        aud = GetComponent<AudioSource>();
         ani = GetComponent<Animator>();
         nav = GetComponent<NavMeshAgent>();                 // 取得導覽代理器
         nav.speed = speed;                                  // 速度
         nav.stoppingDistance = rangeAttack;                 // 停止距離
+
+        gm = FindObjectOfType<GameManager>();
     }
 
     private void OnDrawGizmos()
@@ -95,10 +104,13 @@ public class Enemy : MonoBehaviour
 
         if (timer >= interval)                                                      // 如果 計時器 >= 間隔
         {
+            aud.pitch = Random.Range(0.8f, 0.9f);
+            aud.PlayOneShot(soundFire, Random.Range(0.2f, 0.4f));
             timer = 0;                                                              // 歸零
             GameObject temp = Instantiate(bullet, point.position, point.rotation);  // 暫存 = 生成子彈
             temp.GetComponent<Rigidbody>().AddForce(point.right * -speedBullet);    // 取得子彈 剛體 添加推力(前方 * 速度)
             temp.GetComponent<Bullet>().attack = attack;
+            temp.name += name;                                                      // 添加敵人名稱
             ManageBulletCount();
         }
         else
@@ -126,6 +138,7 @@ public class Enemy : MonoBehaviour
     /// </summary>
     private IEnumerator AddBullet()
     {
+        aud.PlayOneShot(soundAddBullet, Random.Range(0.5f, 0.85f));
         ani.SetTrigger("換彈匣觸發");
         isAddBullet = true;
         yield return new WaitForSeconds(addBulletTime);
@@ -148,6 +161,8 @@ public class Enemy : MonoBehaviour
     /// <param name="getDamage">接收到的傷害</param>
     private void Damage(float getDamage)
     {
+        if (hp <= 0) return;
+
         hp -= getDamage;
 
         if (hp <= 0) Dead();
@@ -159,6 +174,13 @@ public class Enemy : MonoBehaviour
         GetComponent<SphereCollider>().enabled = false;
         GetComponent<CapsuleCollider>().enabled = false;
         enabled = false;
+
+        // 敵人死亡要更新玩家殺敵數
+        gm.UpdateDataKill(ref gm.killPlayer, gm.textDataPlayer, "玩家", gm.deadPlayer);
+
+        if (name == "敵方 1") gm.UpdateDataDead(gm.killNpc1, gm.textDataNpc1, "電腦１", ref gm.deadNpc1);
+        else if (name == "敵方 2") gm.UpdateDataDead(gm.killNpc2, gm.textDataNpc2, "電腦２", ref gm.deadNpc2);
+        else if (name == "敵方 3") gm.UpdateDataDead(gm.killNpc3, gm.textDataNpc3, "電腦３", ref gm.deadNpc3);
     }
 
     private void OnCollisionEnter(Collision collision)
