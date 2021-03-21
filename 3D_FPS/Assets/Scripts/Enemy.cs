@@ -40,6 +40,7 @@ public class Enemy : MonoBehaviour
     [Header("音效")]
     public AudioClip soundFire;
     public AudioClip soundAddBullet;
+    public AudioClip soundHeadShot;
 
     private float timer;
     private bool isAddBullet;
@@ -176,11 +177,11 @@ public class Enemy : MonoBehaviour
         enabled = false;
 
         // 敵人死亡要更新玩家殺敵數
-        gm.UpdateDataKill(ref gm.killPlayer, gm.textDataPlayer, "玩家", gm.deadPlayer);
+        gm.UpdateDataKill(ref GameManager.killPlayer, gm.textDataPlayer, "玩家", GameManager.deadPlayer);
 
-        if (name == "敵方 1") gm.UpdateDataDead(gm.killNpc1, gm.textDataNpc1, "電腦１", ref gm.deadNpc1);
-        else if (name == "敵方 2") gm.UpdateDataDead(gm.killNpc2, gm.textDataNpc2, "電腦２", ref gm.deadNpc2);
-        else if (name == "敵方 3") gm.UpdateDataDead(gm.killNpc3, gm.textDataNpc3, "電腦３", ref gm.deadNpc3);
+        if (name == "敵方 1") gm.UpdateDataDead(GameManager.killNpc1, gm.textDataNpc1, "電腦１", ref GameManager.deadNpc1);
+        else if (name == "敵方 2") gm.UpdateDataDead(GameManager.killNpc2, gm.textDataNpc2, "電腦２", ref GameManager.deadNpc2);
+        else if (name == "敵方 3") gm.UpdateDataDead(GameManager.killNpc3, gm.textDataNpc3, "電腦３", ref GameManager.deadNpc3);
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -191,7 +192,7 @@ public class Enemy : MonoBehaviour
 
             if (collision.contacts[0].thisCollider.GetType().Equals(typeof(SphereCollider)))
             {
-                print("暴頭");
+                aud.PlayOneShot(soundHeadShot, Random.Range(1f, 1.5f));
                 Damage(100);
             }
             else Damage(damage);
